@@ -9,16 +9,16 @@ object GmailapiscalaclientBuild extends Build {
     settings = Project.defaultSettings ++ Seq(
       name := "gmail-api-scala-client",
       organization := "com.github.nemanja-stanarevic",
-      version := "0.1.0-SNAPSHOT",
-      scalaVersion := "2.11.2",
+      version := "0.1.1-SNAPSHOT",
+      scalaVersion := "2.11.5",
 
       resolvers += "Typesafe Releases" at "http://repo.typesafe.com/typesafe/releases",
       resolvers += "Sonatype Releases" at "http://oss.sonatype.org/content/repositories/releases",
       resolvers += "Spray Repository" at "http://repo.spray.io/",
 
       libraryDependencies ++= {
-        val akkaVersion = "2.3.4"
-        val sprayVersion = "1.3.1"
+        val akkaVersion = "2.3.9"
+        val sprayVersion = "1.3.2"
         val scalacheckVersion = "1.11.5"
         val scalaTestVersion = "2.2.1"
         val specs2Version = "2.4"
@@ -27,6 +27,7 @@ object GmailapiscalaclientBuild extends Build {
         val commonsEmailVersion = "1.3.3"
         val commonsCodecVersion = "1.9"
         Seq(
+          "com.jason-goodwin" %% "authentikat-jwt" % "0.4.2-SNAPSHOT",
           "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
           "org.scalacheck" %% "scalacheck" % scalacheckVersion % "test",
           "org.specs2" %% "specs2" % specs2Version % "test",

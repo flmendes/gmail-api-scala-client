@@ -18,15 +18,58 @@
 package gmailapi.oauth2
 
 import akka.actor.Actor
+import authentikat.jwt.{JsonWebToken, JwtClaimsSet, JwtHeader}
 import com.typesafe.config.Config
 import gmailapi.methods.GmailRestRequest
 import org.json4s.jackson.JsonMethods.parse
-import spray.http.{ HttpCredentials, HttpEntity, HttpMethods, ContentTypes }
-import spray.http.{ FormData, Uri }
+import spray.http._
 import spray.httpx.marshalling.marshal
 import scala.language.postfixOps
 
 object OAuth2 {
+  
+  case class RequestServiceToken()(implicit val config: Config) extends GmailRestRequest {
+    val header = JwtHeader("RS256")
+
+    val timestamp: Long = System.currentTimeMillis / 1000
+    val exp: Long = timestamp + (60 * 60)
+
+    val privateKey = config.getString("private_key")
+
+    val claimsSet = JwtClaimsSet(Map(
+      "iss"   -> "525925237928-88loekdu8ek4neliutf33da03ab4etgn@developer.gserviceaccount.com",
+      "scope" -> "https://www.googleapis.com/auth/gmail.readonly",
+      "aud"   -> "https://accounts.google.com/o/oauth2/token",
+      "exp"   -> exp,
+      "iat"   -> timestamp
+    ))
+
+    val jwt: String = JsonWebToken(header, claimsSet, privateKey)
+    
+    override val uri = "https://accounts.google.com/o/oauth2/token"
+    override val method: HttpMethod = HttpMethods.POST
+    
+    override val entity: HttpEntity = marshal(FormData(
+      Map(
+        "grant_type" -> "urn:ietf:params:oauth:grant-type:jwt-bearer",
+        "assertion" -> jwt
+      ))) match {
+      case Right(httpEntity) => httpEntity
+      case Left(_)           => HttpEntity.Empty
+    }
+
+    override val unmarshaller = Some((response: String) => {
+      val json = parse(response)
+      implicit val format = org.json4s.DefaultFormats
+      val accessToken = (json \\ "access_token").extract[String]
+      val expiresIn = (json \\ "expires_in").extract[Long] * 1000L
+      val now = System.currentTimeMillis
+      OAuth2Identity(accessToken, "", now + expiresIn)
+    })
+
+    override val quotaUnits: Int = 0
+    override val credentials = None
+  }
 
   case class RequestToken(authCode: String)(implicit val config: Config)
     extends GmailRestRequest {

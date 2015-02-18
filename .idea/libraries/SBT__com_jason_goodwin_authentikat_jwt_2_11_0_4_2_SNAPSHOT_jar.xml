@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="SBT: com.jason-goodwin:authentikat-jwt_2.11:0.4.2-SNAPSHOT:jar">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.ivy2/local/com.jason-goodwin/authentikat-jwt_2.11/0.4.2-SNAPSHOT/jars/authentikat-jwt_2.11.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
